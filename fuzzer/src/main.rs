@@ -1,7 +1,6 @@
 // Nautilus
 // Copyright (C) 2024  Daniel Teuchert, Cornelius Aschermann, Sergej Schumilo
 
-#![feature(vec_remove_item)]
 extern crate forksrv;
 extern crate grammartec;
 extern crate serde_json;

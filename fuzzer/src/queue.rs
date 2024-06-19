@@ -140,7 +140,9 @@ impl Queue {
             }
             for k in keys {
                 let mut v = self.bit_to_inputs.remove(&k).expect("RAND_2593710501");
-                v.remove_item(&id);
+                if let Some(pos) = v.iter().position(|x| *x == id) {
+                    v.remove(pos);
+                }
                 if !v.is_empty() {
                     self.bit_to_inputs.insert(k, v);
                 }

@@ -72,23 +72,11 @@ impl Step for NodeID {
         }
         return Some(end_i - start_i);
     }
-    fn replace_one(&mut self) -> Self {
-        return NodeID::from(0);
+    fn forward_checked(start: Self, n: usize) -> Option<Self> {
+        return start.0.checked_add(n).map(NodeID)
     }
-    fn replace_zero(&mut self) -> Self {
-        return NodeID::from(1);
-    }
-    fn add_one(&self) -> Self {
-        return self.add(1);
-    }
-    fn sub_one(&self) -> Self {
-        return NodeID(self.0 - 1);
-    }
-    fn add_usize(&self, n: usize) -> Option<Self> {
-        match self.0.checked_add(n) {
-            Some(x) => return Some(NodeID::from(x)),
-            None => return None,
-        }
+    fn backward_checked(start: Self, n: usize) -> Option<Self> {
+        return start.0.checked_sub(n).map(NodeID);
     }
 }
 

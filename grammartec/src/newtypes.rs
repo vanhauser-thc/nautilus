@@ -1,7 +1,6 @@
 // Nautilus
 // Copyright (C) 2024  Daniel Teuchert, Cornelius Aschermann, Sergej Schumilo
 
-use std::iter::Step;
 use std::ops::Add;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Hash, Serialize, Deserialize)]
@@ -63,22 +62,22 @@ impl Add<usize> for NodeID {
     }
 }
 
-impl Step for NodeID {
-    fn steps_between(start: &Self, end: &Self) -> Option<usize> {
-        let start_i = start.to_i();
-        let end_i = end.to_i();
-        if start > end {
-            return None;
-        }
-        return Some(end_i - start_i);
-    }
-    fn forward_checked(start: Self, n: usize) -> Option<Self> {
-        return start.0.checked_add(n).map(NodeID)
-    }
-    fn backward_checked(start: Self, n: usize) -> Option<Self> {
-        return start.0.checked_sub(n).map(NodeID);
-    }
-}
+//impl Step for NodeID {
+//    fn steps_between(start: &Self, end: &Self) -> Option<usize> {
+//        let start_i = start.to_i();
+//        let end_i = end.to_i();
+//        if start > end {
+//            return None;
+//        }
+//        return Some(end_i - start_i);
+//    }
+//    fn forward_checked(start: Self, n: usize) -> Option<Self> {
+//        return start.0.checked_add(n).map(NodeID)
+//    }
+//    fn backward_checked(start: Self, n: usize) -> Option<Self> {
+//        return start.0.checked_sub(n).map(NodeID);
+//    }
+//}
 
 impl NTermID {
     pub fn to_i(&self) -> usize {

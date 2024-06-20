@@ -1,8 +1,6 @@
 // Nautilus
 // Copyright (C) 2024  Daniel Teuchert, Cornelius Aschermann, Sergej Schumilo
 
-
-
 extern crate time as othertime;
 use othertime::strftime;
 

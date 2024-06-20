@@ -1,8 +1,6 @@
 // Nautilus
 // Copyright (C) 2024  Daniel Teuchert, Cornelius Aschermann, Sergej Schumilo
 
-#![feature(exclusive_range_pattern)]
-#![feature(step_trait)]
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]

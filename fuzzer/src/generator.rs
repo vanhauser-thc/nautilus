@@ -19,6 +19,8 @@ use std::io::{self, Write};
 use std::path::Path;
 
 fn main() {
+
+    pyo3::prepare_freethreaded_python();
     //Parse parameters
     let matches = App::new("generator")
         .about("Generate strings using a grammar. This can also be used to generate a corpus")

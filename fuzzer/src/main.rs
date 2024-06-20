@@ -188,6 +188,9 @@ fn fuzzing_thread(
 }
 
 fn main() {
+    
+    pyo3::prepare_freethreaded_python();
+
     //Parse parameters
     let matches = App::new("nautilus")
         .about("Grammar fuzzer")

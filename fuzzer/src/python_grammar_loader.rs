@@ -2,7 +2,7 @@
 // Copyright (C) 2024  Daniel Teuchert, Cornelius Aschermann, Sergej Schumilo
 
 use pyo3::prelude::*;
-use pyo3::types::{IntoPyDict, PyBytes, PyString};
+use pyo3::types::{IntoPyDict};
 
 use crate::Context;
 
@@ -26,14 +26,12 @@ impl PyContext {
     }
 
     fn rule(&mut self, py: Python, nt: &str, format: &PyAny) -> PyResult<()> {
-        if py.is_instance::<PyString, _>(format)? {
-            let pystr = <&PyString>::extract(&format)?;
-            self.ctx.add_rule(nt, pystr.to_string_lossy().as_bytes());
-        } else if py.is_instance::<PyBytes, _>(format)? {
-            let pybytes = <&PyBytes>::extract(&format)?;
-            self.ctx.add_rule(nt, pybytes.as_bytes());
+        if let Ok(s) = format.extract::<&str>() {
+            self.ctx.add_rule(nt, s.as_bytes());
+        } else if let Ok(s) = format.extract::<&[u8]>() {
+            self.ctx.add_rule(nt, s);
         } else {
-            return Err(pyo3::exceptions::ValueError::py_err(
+            return Err(pyo3::exceptions::PyValueError::new_err(
                 "format argument should be string or bytes",
             ));
         }
@@ -61,9 +59,9 @@ fn main_(py: Python, grammar_path: &str) -> PyResult<Context> {
 }
 
 pub fn load_python_grammar(grammar_path: &str) -> Context {
-    let gil = Python::acquire_gil();
-    let py = gil.python();
-    return main_(py, grammar_path)
-        .map_err(|e| e.print_and_set_sys_last_vars(py))
-        .unwrap();
+    return Python::with_gil(|py| {
+        main_(py, grammar_path)
+            .map_err(|e| e.print_and_set_sys_last_vars(py))
+            .unwrap()
+    });
 }

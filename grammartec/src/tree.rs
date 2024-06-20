@@ -72,14 +72,14 @@ impl<'data, 'tree: 'data, 'ctx: 'data, W: Write, T: TreeLike> Unparser<'data, 't
         self.next_rule(nt);
     }
     fn unwrap_script(&mut self, num: usize, expr: PyObject) {
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        self.script(py, num, expr)
-            .map_err(|e| e.print_and_set_sys_last_vars(py))
-            .unwrap();
+        Python::with_gil(|py| {
+            self.script(py, num, expr)
+                .map_err(|e| e.print_and_set_sys_last_vars(py))
+                .unwrap();
+            });
     }
     fn script(&mut self, py: Python, num: usize, expr: PyObject) -> PyResult<()> {
-        use pyo3::AsPyRef;
+        use pyo3::PyRef;
         let bufs = self.buffers.split_off(self.buffers.len() - num);
         let bufs = bufs
             .into_iter()
@@ -87,14 +87,12 @@ impl<'data, 'tree: 'data, 'ctx: 'data, W: Write, T: TreeLike> Unparser<'data, 't
             .collect::<Vec<_>>();
         let byte_arrays = bufs.iter().map(|b| PyBytes::new(py, b));
         let res = expr.call1(py, PyTuple::new(py, byte_arrays))?;
-        if py.is_instance::<PyString, _>(&res)? {
-            let pystr = <&PyString>::extract(res.as_ref(py))?;
-            self.write(pystr.to_string_lossy().as_bytes());
-        } else if py.is_instance::<PyBytes, _>(&res)? {
-            let pybytes = <&PyBytes>::extract(res.as_ref(py))?;
-            self.write(pybytes.as_bytes());
-        } else {
-            return Err(pyo3::exceptions::ValueError::py_err(
+        if let Ok(s) = res.extract::<&str>(py){
+            self.write(s.as_bytes());
+        } else if let Ok(s) = res.extract::<&[u8]>(py) {
+            self.write(&s);
+        } else { 
+            return Err(pyo3::exceptions::PyValueError::new_err(
                 "script function should return string or bytes",
             ));
         }
@@ -129,12 +127,12 @@ impl<'data, 'tree: 'data, 'ctx: 'data, W: Write, T: TreeLike> Unparser<'data, 't
 
     fn next_script(&mut self, r: &ScriptRule) {
         {
-            let gil = Python::acquire_gil();
-            let py = gil.python();
+            Python::with_gil(|py|{
             self.stack.push(UnparseStep::Script(
                 r.nonterms.len(),
                 r.script.clone_ref(py),
             ));
+            });
         }
         for nterm in r.nonterms.iter().rev() {
             self.stack.push(UnparseStep::Nonterm(*nterm));

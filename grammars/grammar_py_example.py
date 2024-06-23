@@ -1,6 +1,11 @@
 
+# these 2 rules actually are used to solve test.c
+ctx.rule("START", "{CHAR}{START}")
+ctx.regex("CHAR","[a-z]")
+
 #ctx.rule(NONTERM: string, RHS: string|bytes) adds a rule NONTERM->RHS. We can use {NONTERM} in the RHS to request a recursion. 
 ctx.rule("START","<document>{XML_CONTENT}</document>")
+
 ctx.rule("XML_CONTENT","{XML}{XML_CONTENT}")
 ctx.rule("XML_CONTENT","")
 
